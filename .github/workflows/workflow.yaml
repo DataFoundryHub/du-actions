@@ -35,7 +35,7 @@ jobs:
         with:
           create_credentials_file: true
           token_format : "access_token"
-          workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
+          workload_identity_provider: 'projects/696000596486/locations/global/workloadIdentityPools/github-access/providers/github'
           service_account: '${{ secrets.SERVICE_ACCOUNT }}'
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
