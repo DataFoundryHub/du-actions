@@ -34,6 +34,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           create_credentials_file: true
+          token_format : "access_token"
           workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: '${{ secrets.SERVICE_ACCOUNT }}'
       - name: Set up Cloud SDK
