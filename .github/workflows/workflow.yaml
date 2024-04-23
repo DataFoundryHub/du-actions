@@ -36,7 +36,7 @@ jobs:
           create_credentials_file: true
           token_format : "access_token"
           workload_identity_provider: 'projects/696000596486/locations/global/workloadIdentityPools/github-access/providers/github'
-          service_account: '${{ secrets.SERVICE_ACCOUNT }}'
+          service_account: 'github-bigquery@du-labs.iam.gserviceaccount.com'
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
       - name: set credentials file
