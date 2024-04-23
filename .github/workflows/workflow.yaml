@@ -18,7 +18,7 @@ jobs:
       - name: Debug OIDC Claims
         uses: ./.github/actions/actions-oidc-debugger
         with:
-          audience: '${{ vars.WORKLOAD_IDENTITY_POOL }}'
+          audience: '${{ secrets.WORKLOAD_IDENTITY_POOL }}'
 
   build:
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           create_credentials_file: true
-          workload_identity_provider: '${{ vars.WORKLOAD_IDENTITY_PROVIDER }}'
+          workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: '${{ secrets.SERVICE_ACCOUNT }}'
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
