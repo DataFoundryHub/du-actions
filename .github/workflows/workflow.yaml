@@ -24,6 +24,7 @@ jobs:
       - name: Deploy Cloud Function
         run: |
           gcloud config set account '${{ secrets.SERVICE_ACCOUNT }}'
+          gcloud auth activate-service-account --key-file $GOOGLE_GHA_CREDS_PATH
           gcloud functions deploy gcp-test\
             --runtime python311 \
             --trigger-http \
