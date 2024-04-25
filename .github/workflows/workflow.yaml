@@ -23,9 +23,6 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Deploy Cloud Function
         run: |
-          pwd
-          ls -lrt *
-          ls -lrt */*
           cd cloud_functions/big_query_dll
           gcloud functions deploy gcp-test\
             --gen2 \
