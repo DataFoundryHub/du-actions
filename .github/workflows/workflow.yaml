@@ -23,9 +23,10 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Deploy Cloud Function
         run: |
-          gcloud config set account '${{ secrets.SERVICE_ACCOUNT }}'
-          gcloud auth activate-service-account --key-file $GOOGLE_GHA_CREDS_PATH
+          gcloud functions add-iam-policy-binding gcp-test --member='${{ secrets.SERVICE_ACCOUNT }}' --role='roles/Admin'
+          gcloud functions add-invoker-policy-binding gct-test --member='${{ secrets.SERVICE_ACCOUNT }}' --role='roles/Admin'
           gcloud functions deploy gcp-test\
+            --gen2 \
             --runtime python311 \
             --trigger-http \
             --allow-unauthenticated \
