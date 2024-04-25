@@ -1,25 +1,7 @@
-name: Github Actions Workload Identity Federation
+name: GCP Cloud Functions Deployment
 on:
   workflow_dispatch:
 jobs:
-  print:
-    runs-on: ubuntu-latest
-    environment: dev # Fetches the env variables for dev
-    permissions:
-      id-token: write
-    steps:
-      - name: Checkout actions-oidc-debugger
-        uses: actions/checkout@v3
-        with:
-          repository: github/actions-oidc-debugger
-          ref: main
-          token: '${{ secrets.GITHUB_TOKEN }}'
-          path: ./.github/actions/actions-oidc-debugger
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: '${{ secrets.WORKLOAD_IDENTITY_POOL }}'
-
   build:
     runs-on: ubuntu-latest
     environment: dev # Fetches the env variables for dev
@@ -27,7 +9,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Checkout actions-oidc-debugger
+      - name: Checkout
         uses: actions/checkout@v3
       - id: auth
         name: Authenticate to Google Cloud
@@ -39,9 +21,11 @@ jobs:
           service_account: '${{ secrets.SERVICE_ACCOUNT }}'
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-      - name: set credentials file
-        run: >-
-          gcloud auth login
-          --cred-file=${{steps.auth.outputs.credentials_file_path}}
-      - name: Use gcloud CLI
-        run: gcloud info
+      - name: Deploy Cloud Function
+        run: |
+          gcloud functions deploy gcp-test\
+            --runtime python311 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --source du-actions/cloud_functions/big_query_dll
+            --entry-point trigger_bq

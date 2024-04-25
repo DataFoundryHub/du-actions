@@ -1,0 +1,4 @@
+functions-framework==3.*
+google-cloud-bigquery
+--extra-index-url https://us-python.pkg.dev/du-labs/test-repo/simple
+gcp-common-utils
