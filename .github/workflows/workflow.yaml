@@ -33,5 +33,5 @@ jobs:
             --runtime python311 \
             --trigger-http \
             --allow-unauthenticated \
-            --source du-actions/cloud_functions/big_query_dll
+            --source 'cloud_functions/big_query_dll' \
             --entry-point trigger_bq
