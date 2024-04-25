@@ -23,11 +23,11 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Deploy Cloud Function
         run: |
-          cd cloud_functions/big_query_dll
           gcloud functions deploy gcp-test\
             --gen2 \
             --region us-central1 \
             --runtime python311 \
             --trigger-http \
             --allow-unauthenticated \
+            --source 'cloud_functions/big_query_ddl' \
             --entry-point trigger_bq
