@@ -23,8 +23,8 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Deploy Cloud Function
         run: |
-          gcloud functions add-iam-policy-binding gcp-test --member='${{ secrets.SERVICE_ACCOUNT }}' --role='roles/Admin'
-          gcloud functions add-invoker-policy-binding gct-test --member='${{ secrets.SERVICE_ACCOUNT }}' --role='roles/Admin'
+          gcloud functions add-iam-policy-binding gcp-test --member='${{ secrets.SERVICE_ACCOUNT }}' --role='roles/editor'
+          gcloud functions add-invoker-policy-binding gct-test --member='${{ secrets.SERVICE_ACCOUNT }}' --role='roles/editor'
           gcloud functions deploy gcp-test\
             --gen2 \
             --runtime python311 \
