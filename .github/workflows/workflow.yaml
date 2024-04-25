@@ -26,11 +26,11 @@ jobs:
           pwd
           ls -lrt *
           ls -lrt */*
+          cd cloud_functions/big_query_dll
           gcloud functions deploy gcp-test\
             --gen2 \
             --region us-central1 \
             --runtime python311 \
             --trigger-http \
             --allow-unauthenticated \
-            --source 'cloud_functions/big_query_dll' \
             --entry-point trigger_bq
