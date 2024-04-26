@@ -1,4 +1,4 @@
-name: GCP Cloud Functions Deployment
+name: GCP Cloud Functions Deployment for big-query-ddl
 on:
   workflow_dispatch:
 jobs:
