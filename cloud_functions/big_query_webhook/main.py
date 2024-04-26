@@ -8,9 +8,9 @@ import os
 @functions_framework.http
 def trigger_bq(request):
     request_json = request.get_json(silent=True)
-    project_id = os.environ["project_id"]
-    dataset_name = os.environ["dataset_name"]
-    table_name = os.environ["table_name"]
+    project_id = os.environ["PROJECT_ID"]
+    dataset_name = os.environ["DATASET_NAME"]
+    table_name = os.environ["TABLE_NAME"]
     logger = create_logger()
 
     if not request_json:
