@@ -3,6 +3,7 @@ from google.cloud import bigquery
 from common_utils.utils import create_logger, json_reader
 from big_query_ops import BigQueryDDL
 import os
+from flask import request, jsonify
 
 
 @functions_framework.http
@@ -16,10 +17,13 @@ def trigger_bq(request):
     schema = request_json['schema']
     client = bigquery.Client(project=project_id)
     big_query_op = BigQueryDDL(client, project_id, dataset_name, dataset_location, table_name)
+    response = {}
     if operation.upper() == "CREATE":
-        big_query_op.create_table(schema)
+        response = big_query_op.create_table(schema)
     if operation.upper() == "UPDATE":
-        big_query_op.update_table(schema)
+        response = big_query_op.update_table(schema)
     if operation.upper() == "DELETE":
-        big_query_op.delete_table()
+        response = big_query_op.delete_table()
+    return response
+
 

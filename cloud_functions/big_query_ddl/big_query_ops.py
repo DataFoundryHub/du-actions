@@ -1,6 +1,7 @@
 from google.cloud import bigquery
 import traceback
 from common_utils.utils import create_logger, json_reader
+from flask import request, jsonify
 
 
 # Class to handle BigQuery DDL operations
@@ -43,11 +44,11 @@ class BigQueryDDL:
             self.client.create_table(table, exists_ok=True)
 
             self.logger.info(f"Table {self.project_id}.{self.dataset_name}.{self.table_name} created successfully.")
-
+            return {"status": "success", "message": "Table Created successfully."}
         except Exception as error:
             self.logger.error(f"Error creating table {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            raise  # Re-raise to retain context
+            return jsonify({"status": "error", "message": "An internal error occurred."}), 500
 
     def delete_table(self):
         """Delete the specified BigQuery table."""
@@ -61,11 +62,11 @@ class BigQueryDDL:
             self.client.delete_table(table_ref, not_found_ok=True)
 
             self.logger.info(f"Table {self.project_id}.{self.dataset_name}.{self.table_name} deleted successfully.")
-
+            return {"status": "success", "message": "Table Deleted successfully."}
         except Exception as error:
             self.logger.error(f"Error deleting table {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            raise
+            return jsonify({"status": "error", "message": "An internal error occurred."}), 500
 
     def update_table(self, new_schema):
         """Update the schema of the specified BigQuery table."""
@@ -91,8 +92,8 @@ class BigQueryDDL:
 
             self.logger.info(
                 f"Schema for table {self.project_id}.{self.dataset_name}.{self.table_name} updated successfully.")
-
+            return {"status": "success", "message": "Table Schema Updated successfully."}
         except Exception as error:
             self.logger.error(f"Error updating table schema {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            raise
+            return jsonify({"status": "error", "message": "An internal error occurred."}), 500
