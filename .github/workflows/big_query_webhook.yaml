@@ -27,7 +27,9 @@ jobs:
             --gen2 \
             --region us-central1 \
             --runtime python311 \
-            --set-env-vars ["project_id"="du-labs","dataset_name"="test_dataset","table_name"="test_table"] \
+            --set-env-vars project_id=du-labs \
+            --set-env-vars dataset_name=test_dataset \
+            --set-env-vars table_name=test_table \
             --trigger-http \
             --source 'cloud_functions/big_query_webhook' \
             --entry-point trigger_bq
