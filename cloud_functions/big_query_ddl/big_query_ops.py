@@ -12,25 +12,31 @@ class BigQueryDDL:
         self.dataset_location = dataset_location
         self.table_name = table_name
         self.logger = create_logger()
+        self.logger.info("BigQueryDDL instance initialized.")
 
     def create_table(self, schema):
         """Create a BigQuery table with the specified schema."""
+        self.logger.info(f"Creating table {self.table_name} in dataset {self.dataset_name}.")
+
         try:
             # Ensure the dataset exists
             dataset_ref = f"{self.client.project}.{self.dataset_name}"
             dataset = bigquery.Dataset(dataset_ref)
             dataset.location = self.dataset_location
+
+            self.logger.info(f"Creating dataset {self.dataset_name} if not already created.")
             self.client.create_dataset(dataset, exists_ok=True)
 
-            self.logger.info(f"Created dataset {self.project_id}.{self.dataset_name} or it already exists.")
+            self.logger.info(f"Dataset {self.project_id}.{self.dataset_name} created or already exists.")
 
             # Convert the schema to BigQuery fields
-            bigquery_schema = [bigquery.SchemaField(key,value) for key,value in schema.items()]
+            bigquery_schema = [bigquery.SchemaField(key, value) for key, value in schema.items()]
 
             # Construct the table reference
             table_ref = self.client.dataset(self.dataset_name).table(self.table_name)
 
             # Create the table with schema
+            self.logger.info(f"Creating table {self.table_name} with given schema.")
             table = bigquery.Table(table_ref, schema=bigquery_schema)
 
             # Create the table (use exists_ok=True to avoid errors if it already exists)
@@ -39,12 +45,14 @@ class BigQueryDDL:
             self.logger.info(f"Table {self.project_id}.{self.dataset_name}.{self.table_name} created successfully.")
 
         except Exception as error:
-            self.logger.error(f"Error creating table: {error}")
+            self.logger.error(f"Error creating table {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
             raise  # Re-raise to retain context
 
     def delete_table(self):
         """Delete the specified BigQuery table."""
+        self.logger.info(f"Deleting table {self.table_name} in dataset {self.dataset_name}.")
+
         try:
             # Construct the table reference
             table_ref = self.client.dataset(self.dataset_name).table(self.table_name)
@@ -55,31 +63,36 @@ class BigQueryDDL:
             self.logger.info(f"Table {self.project_id}.{self.dataset_name}.{self.table_name} deleted successfully.")
 
         except Exception as error:
-            self.logger.error(f"Error deleting table: {error}")
+            self.logger.error(f"Error deleting table {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
             raise
 
     def update_table(self, new_schema):
         """Update the schema of the specified BigQuery table."""
+        self.logger.info(f"Updating schema for table {self.table_name} in dataset {self.dataset_name}.")
+
         try:
             # Convert the new schema to BigQuery fields
-            bigquery_schema = [bigquery.SchemaField(key,value) for key,value in new_schema.items()]
+            bigquery_schema = [bigquery.SchemaField(key, value) for key, value in new_schema.items()]
 
             # Construct the table reference
             table_ref = self.client.dataset(self.dataset_name).table(self.table_name)
 
             # Get the existing table
+            self.logger.info(f"Retrieving table {self.table_name} to update schema.")
             table = self.client.get_table(table_ref)
 
             # Update the schema (appending new fields or modifying existing ones)
+            self.logger.info(f"Applying new schema to table {self.table_name}.")
             table.schema = bigquery_schema
 
             # Update the table in BigQuery
             self.client.update_table(table, ["schema"])
 
-            self.logger.info(f"Schema for table {self.project_id}.{self.dataset_name}.{self.table_name} updated successfully.")
+            self.logger.info(
+                f"Schema for table {self.project_id}.{self.dataset_name}.{self.table_name} updated successfully.")
 
         except Exception as error:
-            self.logger.error(f"Error updating table schema: {error}")
+            self.logger.error(f"Error updating table schema {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
             raise
