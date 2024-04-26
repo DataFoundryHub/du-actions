@@ -1,9 +1,7 @@
 import functions_framework
 from google.cloud import bigquery
-from common_utils.utils import create_logger, json_reader
+from common_utils.utils import create_logger
 from big_query_ops import BigQueryDDL
-import os
-from flask import request, jsonify
 
 
 @functions_framework.http
