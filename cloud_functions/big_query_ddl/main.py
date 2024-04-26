@@ -18,3 +18,8 @@ def trigger_bq(request):
     big_query_op = BigQueryDDL(client, project_id, dataset_name, dataset_location, table_name)
     if operation.upper() == "CREATE":
         big_query_op.create_table(schema)
+    if operation.upper() == "UPDATE":
+        big_query_op.update_table(schema)
+    if operation.upper() == "DELETE":
+        big_query_op.delete_table()
+

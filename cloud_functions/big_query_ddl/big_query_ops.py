@@ -59,7 +59,7 @@ class BigQueryDDL:
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
             raise
 
-    def update_table_schema(self, new_schema):
+    def update_table(self, new_schema):
         """Update the schema of the specified BigQuery table."""
         try:
             # Convert the new schema to BigQuery fields
