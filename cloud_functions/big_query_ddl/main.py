@@ -1,8 +1,9 @@
 import functions_framework
 from google.cloud import bigquery
-from common_utils.utils import create_logger,json_reader
+from common_utils.utils import create_logger, json_reader
 from big_query_ops import BigQueryDDL
 import os
+
 
 @functions_framework.http
 def trigger_bq(request):
@@ -17,6 +18,3 @@ def trigger_bq(request):
     big_query_op = BigQueryDDL(client, project_id, dataset_name, dataset_location, table_name)
     if operation.upper() == "CREATE":
         big_query_op.create_table(schema)
-
-
-
