@@ -28,6 +28,5 @@ jobs:
             --region us-central1 \
             --runtime python311 \
             --trigger-http \
-            --allow-authenticated \
             --source 'cloud_functions/big_query_ddl' \
             --entry-point trigger_bq
