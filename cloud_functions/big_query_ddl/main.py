@@ -19,7 +19,7 @@ def trigger_bq(request):
     if operation.upper() == "CREATE":
         response = big_query_op.create_table(schema)
     if operation.upper() == "UPDATE":
-        response = big_query_op.update_table(schema)
+        response = big_query_op.update_table_schema(schema)
     if operation.upper() == "DELETE":
         response = big_query_op.delete_table()
     return response

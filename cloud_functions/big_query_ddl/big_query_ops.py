@@ -68,7 +68,7 @@ class BigQueryDDL:
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
             return jsonify({"status": "error", "message": "An internal error occurred."}), 500
 
-    def update_table(self, new_schema):
+    def update_table_schema(self, new_schema):
         """Update the schema of the specified BigQuery table."""
         self.logger.info(f"Updating schema for table {self.table_name} in dataset {self.dataset_name}.")
 
