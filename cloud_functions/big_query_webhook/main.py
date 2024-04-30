@@ -8,9 +8,9 @@ import os
 @functions_framework.http
 def trigger_bq(request):
     request_json = request.get_json(silent=True)
-    project_id = os.environ["PROJECT_ID"]
-    dataset_name = os.environ["DATASET_NAME"]
-    table_name = os.environ["TABLE_NAME"]
+    project_id = "du-labs"
+    dataset_name = "webhook_dataset"
+    table_name = "webhook"
     logger = create_logger()
 
     if not request_json:
