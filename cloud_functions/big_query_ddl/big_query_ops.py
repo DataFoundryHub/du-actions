@@ -48,7 +48,7 @@ class BigQueryDDL:
         except Exception as error:
             self.logger.error(f"Error creating table {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": "An internal error occurred."}), 500
+            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500
 
     def delete_table(self):
         """Delete the specified BigQuery table."""
@@ -66,7 +66,7 @@ class BigQueryDDL:
         except Exception as error:
             self.logger.error(f"Error deleting table {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": "An internal error occurred."}), 500
+            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500
 
     def update_table_schema(self, new_schema):
         """Update the schema of the specified BigQuery table."""
@@ -96,4 +96,4 @@ class BigQueryDDL:
         except Exception as error:
             self.logger.error(f"Error updating table schema {self.table_name}: {error}")
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": "An internal error occurred."}), 500
+            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500

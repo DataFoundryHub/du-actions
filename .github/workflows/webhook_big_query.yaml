@@ -23,11 +23,11 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
       - name: Deploy Cloud Function
         run: |
-          gcloud functions deploy big-query-webhook \
+          gcloud functions deploy webhook-big-query \
             --gen2 \
             --region us-central1 \
             --runtime python311 \
             --set-env-vars PROJECT_ID=du-labs,DATASET_NAME=test_dataset,TABLE_NAME=test_table \
             --trigger-http \
-            --source 'cloud_functions/big_query_webhook' \
+            --source 'cloud_functions/webhook_big_query' \
             --entry-point trigger_bq

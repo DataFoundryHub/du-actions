@@ -28,7 +28,7 @@ def trigger_bq(request):
 
     if errors:
         logger.error(f"Error inserting data into BigQuery: {errors}")
-        return jsonify({"status": "error", "message": "Failed to insert data into BigQuery."}), 500
+        return jsonify({"status": "error", "message": f"Failed to insert data into BigQuery. Reason - {errors}"}), 500
 
     logger.info(f"Data inserted into {project_id}.{dataset_name}.{table_name} successfully.")
     return jsonify({"status": "success", "message": "Data inserted successfully."}), 200

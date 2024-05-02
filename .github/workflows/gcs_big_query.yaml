@@ -1,0 +1,33 @@
+name: GCP Cloud Functions Deployment for big-query-webhook
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: dev # Fetches the env variables for dev
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          create_credentials_file: true
+          token_format : "access_token"
+          workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ secrets.SERVICE_ACCOUNT }}'
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy Cloud Function
+        run: |
+          gcloud functions deploy gcs-big-query \
+            --gen2 \
+            --region us-central1 \
+            --runtime python311 \
+            --set-env-vars PROJECT_ID=du-labs,DATASET_NAME=test_dataset,TABLE_NAME=test_table \
+            --trigger-http \
+            --source 'cloud_functions/gcs_big_query' \
+            --entry-point trigger_bq
