@@ -1,4 +1,4 @@
-name: GCP Cloud Functions Deployment for big-query-webhook
+name: GCP Cloud Functions Deployment for webhook-big-query
 on:
   workflow_dispatch:
 jobs:
