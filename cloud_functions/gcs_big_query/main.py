@@ -28,16 +28,6 @@ def trigger_bq(request):
     # Determine the file type (CSV or Parquet)
     file_extension = os.path.splitext(file_name)[1].lower()
 
-    # BigQuery client
-    client = bigquery.Client(project=project_id)
-
-    # Google Cloud Storage client
-    gcs_client = storage.Client()
-
-    # Fetch the file from GCS
-    bucket = gcs_client.get_bucket(bucket_name)
-    blob = bucket.blob(file_name)
-
     try:
         logger.info(f"Processing file '{file_name}' from bucket '{bucket_name}'.")
         if file_extension == ".csv":
