@@ -6,7 +6,9 @@ from big_query_ops import BigQueryDDL
 
 @functions_framework.http
 def trigger_bq(request):
+    logger = create_logger()
     request_json = request.get_json(silent=True)
+    logger.info(f"Received request: {request_json}")
     project_id = request_json['project_id']
     dataset_name = request_json['dataset_name']
     dataset_location = request_json['dataset_location']

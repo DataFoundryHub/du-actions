@@ -7,11 +7,12 @@ import os
 
 @functions_framework.http
 def trigger_bq(request):
+    logger = create_logger()
     request_json = request.get_json(silent=True)
+    logger.info(f"Received request: {request_json}")
     project_id = "du-labs"
     dataset_name = "webhook_dataset"
     table_name = "webhook"
-    logger = create_logger()
 
     if not request_json:
         return jsonify({"error": "Invalid request. No JSON data found."}), 400

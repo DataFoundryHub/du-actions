@@ -1,99 +1,65 @@
-from google.cloud import bigquery
-import traceback
-from common_utils.utils import create_logger, json_reader
+import functions_framework
+from google.cloud import bigquery, storage
+from common_utils.utils import create_logger
 from flask import request, jsonify
+import os
+import pandas as pd
+import pandas_gbq
+from datetime import datetime
+import traceback
 
 
-# Class to handle BigQuery DDL operations
-class BigQueryDDL:
-    def __init__(self, client, project_id, dataset_name, dataset_location, table_name):
-        self.client = client
-        self.project_id = project_id
-        self.dataset_name = dataset_name
-        self.dataset_location = dataset_location
-        self.table_name = table_name
-        self.logger = create_logger()
-        self.logger.info("BigQueryDDL instance initialized.")
+@functions_framework.http
+def trigger_bq(request):
+    request_json = request.get_json(silent=True)
+    project_id = "du-labs"
+    dataset_name = "webhook_dataset"
+    table_name = "webhook"
 
-    def create_table(self, schema):
-        """Create a BigQuery table with the specified schema."""
-        self.logger.info(f"Creating table {self.table_name} in dataset {self.dataset_name}.")
+    if not request_json or 'bucket' not in request_json or 'name' not in request_json:
+        return jsonify({"status": "error", "message": "Invalid request format."}), 400
 
-        try:
-            # Ensure the dataset exists
-            dataset_ref = f"{self.client.project}.{self.dataset_name}"
-            dataset = bigquery.Dataset(dataset_ref)
-            dataset.location = self.dataset_location
+    logger = create_logger()
+    bucket_name = request_json['bucket']
+    file_name = request_json['name']
 
-            self.logger.info(f"Creating dataset {self.dataset_name} if not already created.")
-            self.client.create_dataset(dataset, exists_ok=True)
+    # Determine the file type (CSV or Parquet)
+    file_extension = os.path.splitext(file_name)[1].lower()
 
-            self.logger.info(f"Dataset {self.project_id}.{self.dataset_name} created or already exists.")
+    # BigQuery client
+    client = bigquery.Client(project=project_id)
 
-            # Convert the schema to BigQuery fields
-            bigquery_schema = [bigquery.SchemaField(key, value) for key, value in schema.items()]
+    # Google Cloud Storage client
+    gcs_client = storage.Client()
 
-            # Construct the table reference
-            table_ref = self.client.dataset(self.dataset_name).table(self.table_name)
+    # Fetch the file from GCS
+    bucket = gcs_client.get_bucket(bucket_name)
+    blob = bucket.blob(file_name)
 
-            # Create the table with schema
-            self.logger.info(f"Creating table {self.table_name} with given schema.")
-            table = bigquery.Table(table_ref, schema=bigquery_schema)
+    try:
+        if file_extension == ".csv":
+            # Read CSV file into a DataFrame
+            # csv_data = blob.download_as_bytes()  # Download the CSV content as bytes
+            df = pd.read_csv(f"gs://{bucket_name}/{file_name}")
+        elif file_extension == ".parquet":
+            # Read Parquet file into a DataFrame
+            # with blob.open("rb") as f:
+            df = pd.read_parquet(f"gs://{bucket_name}/{file_name}")
+        else:
+            # Unsupported file type
+            return jsonify(
+                {"status": "error", "message": "Failed to insert data into BigQuery. Reason - invalid file type."}), 400
 
-            # Create the table (use exists_ok=True to avoid errors if it already exists)
-            self.client.create_table(table, exists_ok=True)
+        current_timestamp = datetime.utcnow()  # Use UTC to avoid timezone issues
+        df["insert_timestamp"] = current_timestamp
+        print(df)
+        # Load DataFrame into BigQuery
+        pandas_gbq.to_gbq(df, destination_table=f"{dataset_name}.{table_name}",
+                          project_id=project_id,
+                          if_exists='append')
 
-            self.logger.info(f"Table {self.project_id}.{self.dataset_name}.{self.table_name} created successfully.")
-            return {"status": "success", "message": "Table Created successfully."}
-        except Exception as error:
-            self.logger.error(f"Error creating table {self.table_name}: {error}")
-            self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500
+    except Exception as error:
+        # Log the error and return a 500 response
+        logger.error(f"Error Traceback: {traceback.format_exc()}")
+        return jsonify({"status": "error", "message": f"An error occurred: {str(error)}"}), 500
 
-    def delete_table(self):
-        """Delete the specified BigQuery table."""
-        self.logger.info(f"Deleting table {self.table_name} in dataset {self.dataset_name}.")
-
-        try:
-            # Construct the table reference
-            table_ref = self.client.dataset(self.dataset_name).table(self.table_name)
-
-            # Delete the table
-            self.client.delete_table(table_ref, not_found_ok=True)
-
-            self.logger.info(f"Table {self.project_id}.{self.dataset_name}.{self.table_name} deleted successfully.")
-            return {"status": "success", "message": "Table Deleted successfully."}
-        except Exception as error:
-            self.logger.error(f"Error deleting table {self.table_name}: {error}")
-            self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500
-
-    def update_table_schema(self, new_schema):
-        """Update the schema of the specified BigQuery table."""
-        self.logger.info(f"Updating schema for table {self.table_name} in dataset {self.dataset_name}.")
-
-        try:
-            # Convert the new schema to BigQuery fields
-            bigquery_schema = [bigquery.SchemaField(key, value) for key, value in new_schema.items()]
-
-            # Construct the table reference
-            table_ref = self.client.dataset(self.dataset_name).table(self.table_name)
-
-            # Get the existing table
-            self.logger.info(f"Retrieving table {self.table_name} to update schema.")
-            table = self.client.get_table(table_ref)
-
-            # Update the schema (appending new fields or modifying existing ones)
-            self.logger.info(f"Applying new schema to table {self.table_name}.")
-            table.schema = bigquery_schema
-
-            # Update the table in BigQuery
-            self.client.update_table(table, ["schema"])
-
-            self.logger.info(
-                f"Schema for table {self.project_id}.{self.dataset_name}.{self.table_name} updated successfully.")
-            return {"status": "success", "message": "Table Schema Updated successfully."}
-        except Exception as error:
-            self.logger.error(f"Error updating table schema {self.table_name}: {error}")
-            self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500

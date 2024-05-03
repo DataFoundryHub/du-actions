@@ -3,5 +3,8 @@ google-cloud-bigquery
 google-cloud-storage
 pandas
 pyarrow
+fsspec
+gcsfs
+pandas-gbq
 --extra-index-url https://us-python.pkg.dev/du-labs/test-repo/simple
 gcp-common-utils
