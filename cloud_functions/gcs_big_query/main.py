@@ -69,6 +69,9 @@ def trigger_bq(request):
         elif file_extension == ".parquet":
             # Read Parquet file into a Pandas DataFrame
             df = pd.read_parquet(f"gs://{bucket_name}/{file_name}")  # Read directly from GCS
+        elif file_extension == ".json":
+            # Read JSON file into a Pandas DataFrame
+            df = pd.read_json(f"gs://{bucket_name}/{file_name}")  # Read directly from GCS
         else:
             # If the file type is unsupported, return a 400 error
             return jsonify({"status": "error", "message": "Failed to insert data into BigQuery. Reason - invalid file type."}), 400
