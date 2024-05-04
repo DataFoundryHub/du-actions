@@ -1,32 +1,51 @@
 name: GCP Cloud Functions Deployment for big-query-ddl
+# This is the name of the GitHub Actions workflow. It describes the purpose of this workflow,
+# which is to deploy a Google Cloud Function related to BigQuery Table Creation/Deletion/Update
+
 on:
   workflow_dispatch:
+# This section defines when the workflow should run. 'workflow_dispatch' allows manual triggering of the workflow
+# from the GitHub Actions interface, providing flexibility to deploy on demand.
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: dev # Fetches the env variables for dev
+    environment: dev  # This specifies the environment context for the job, such as the 'dev' environment.
     permissions:
-      contents: read
-      id-token: write
+      contents: read   # Grants read access to the repository contents.
+      id-token: write  # Grants permission to generate identity tokens for Google Cloud authentication.
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        # This step checks out the repository code so that subsequent steps can access it.
+
       - id: auth
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           create_credentials_file: true
-          token_format : "access_token"
+          token_format: "access_token"
           workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: '${{ secrets.SERVICE_ACCOUNT }}'
+        # This step authenticates with Google Cloud using the Google GitHub Actions Auth library.
+        # It uses a Workload Identity Provider and Service Account to create the required credentials.
+        # It reads the necessary secrets for authentication from GitHub repository secrets.
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+        # This step sets up the Google Cloud SDK to interact with Google Cloud services.
+        # The SDK is used to deploy the Cloud Function and other Google Cloud operations.
+
       - name: Deploy Cloud Function
         run: |
-          gcloud functions deploy big-query-ddl\
+          gcloud functions deploy big-query-ddl \
             --gen2 \
             --region us-central1 \
             --runtime python311 \
             --trigger-http \
             --source 'cloud_functions/big_query_ddl' \
             --entry-point trigger_bq
+        # This step deploys the Cloud Function using the Google Cloud SDK (`gcloud` command).
+        # It specifies the function name ('big-query-ddl'), the generation (Gen2), region, runtime (Python 3.11),
+        # HTTP trigger, source code location, and entry point (the Python function to invoke when the function is triggered).

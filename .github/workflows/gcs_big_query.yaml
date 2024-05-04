@@ -1,16 +1,25 @@
 name: GCP Cloud Functions Deployment for gcs-big-query
+# The name of the GitHub Actions workflow, indicating its purpose—deploying a Google Cloud Function
+# that likely interacts with Google Cloud Storage (GCS) and BigQuery.
+
 on:
   workflow_dispatch:
+# This specifies that the workflow can be manually triggered through the GitHub Actions interface.
+# It allows users to run this workflow on demand.
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: dev # Fetches the env variables for dev
+    environment: dev  # This specifies the environment context for the job, such as 'dev'.
     permissions:
-      contents: read
-      id-token: write
+      contents: read   # Grants read access to the repository's contents.
+      id-token: write  # Allows the workflow to generate identity tokens for authentication with Google Cloud.
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        # This step checks out the repository's code to the GitHub Actions runner.
+
       - id: auth
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -19,8 +28,16 @@ jobs:
           token_format : "access_token"
           workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: '${{ secrets.SERVICE_ACCOUNT }}'
+        # This step authenticates with Google Cloud using GitHub Actions' Google authentication library.
+        # It uses a Workload Identity Provider and a Service Account, with configurations taken from GitHub Secrets.
+        # 'create_credentials_file' creates a temporary file for authentication,
+        # 'token_format' specifies the format of the access token, and
+        # 'workload_identity_provider' and 'service_account' are loaded from repository secrets.
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+        # This step installs and sets up the Google Cloud SDK, enabling interactions with Google Cloud services.
+
       - name: Deploy Cloud Function
         run: |
           gcloud functions deploy gcs-big-query \
@@ -31,3 +48,9 @@ jobs:
             --trigger-http \
             --source 'cloud_functions/gcs_big_query' \
             --entry-point trigger_bq
+        # This step deploys the Cloud Function with the specified parameters.
+        # The 'gcloud functions deploy' command deploys a Cloud Function.
+        # It uses Generation 2 (`--gen2`), sets the deployment region, specifies the Python runtime (3.11),
+        # sets environment variables (like project ID, dataset name, and table name),
+        # triggers via HTTP, and points to the source code directory.
+        # 'entry-point' specifies which function to call within the code when the Cloud Function is triggered.

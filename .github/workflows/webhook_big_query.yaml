@@ -1,26 +1,42 @@
 name: GCP Cloud Functions Deployment for webhook-big-query
+# The name of the GitHub Actions workflow, indicating that it deploys a Google Cloud Function
+# designed to work with webhooks and BigQuery.
+
 on:
   workflow_dispatch:
+# This specifies that the workflow can be manually triggered through the GitHub Actions interface,
+# allowing for on-demand deployment.
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: dev # Fetches the env variables for dev
+    environment: dev  # This specifies the environment context for the job, fetching the environment variables for 'dev'.
     permissions:
-      contents: read
-      id-token: write
+      contents: read   # Grants read access to the repository's contents.
+      id-token: write  # Allows the workflow to generate identity tokens for authentication with Google Cloud.
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        # This step checks out the repository's code to the GitHub Actions runner.
+
       - id: auth
         name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           create_credentials_file: true
-          token_format : "access_token"
+          token_format: "access_token"
           workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
           service_account: '${{ secrets.SERVICE_ACCOUNT }}'
+        # This step authenticates with Google Cloud, using a Workload Identity Provider and a Service Account.
+        # It uses configurations stored in GitHub Secrets for authentication.
+        # 'create_credentials_file' creates a temporary file for authentication, and
+        # 'workload_identity_provider' and 'service_account' are sourced from repository secrets.
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+        # This step installs and sets up the Google Cloud SDK, allowing for interaction with Google Cloud services.
+
       - name: Deploy Cloud Function
         run: |
           gcloud functions deploy webhook-big-query \
@@ -31,3 +47,13 @@ jobs:
             --trigger-http \
             --source 'cloud_functions/webhook_big_query' \
             --entry-point trigger_bq
+        # This step deploys the Google Cloud Function using the Google Cloud SDK.
+        # It uses the 'gcloud functions deploy' command to deploy the Cloud Function.
+        # The deployment parameters include:
+        # - Generation 2 (`--gen2`) indicating the version of Cloud Functions to use.
+        # - The deployment region (us-central1).
+        # - The Python runtime version (Python 3.11).
+        # - Environment variables for the Cloud Function (PROJECT_ID, DATASET_NAME, TABLE_NAME).
+        # - HTTP trigger, which allows the Cloud Function to be triggered by HTTP requests.
+        # - The source code location ('cloud_functions/webhook_big_query').
+        # - The entry point, which specifies which function to call when the Cloud Function is triggered.
