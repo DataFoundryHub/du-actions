@@ -45,6 +45,7 @@ jobs:
 
       - name: Create GCP Bucket
         run: |
+          cat $GOOGLE_GHA_CREDS_PATH
           # Creates a GCP bucket with a specified name and location.
           BUCKET_NAME=my-gcp-bucket-name  # Customize with the bucket's name.
           LOCATION=US  # Adjust location as needed.
