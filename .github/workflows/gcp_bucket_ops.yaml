@@ -1,0 +1,81 @@
+name: Manage GCP Bucket
+# This workflow allows you to manage a GCP bucket by creating or deleting it.
+# The action to perform is selected via a workflow_dispatch input at runtime.
+
+on:
+  workflow_dispatch:
+    # Defines the input for the workflow when triggered manually.
+    inputs:
+      action:
+        # Description shown in the GitHub Actions interface.
+        description: 'Choose an action to perform'
+        required: true  # Input is mandatory.
+        default: 'create'  # Default action is to create a bucket.
+        type: choice  # Input type is a choice.
+        options:
+          - create  # Option to create a bucket.
+          - delete  # Option to delete a bucket.
+
+jobs:
+  create-bucket:  # Job for creating a GCP bucket.
+    if: github.event.inputs.action == 'create'  # Only runs if 'create' is selected.
+    runs-on: ubuntu-latest  # The job runs on the latest Ubuntu runner.
+
+    steps:
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          create_credentials_file: true
+          token_format: "access_token"
+          workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ secrets.SERVICE_ACCOUNT }}'
+        # This step authenticates with Google Cloud using the Google GitHub Actions Auth library.
+        # It uses a Workload Identity Provider and Service Account to create the required credentials.
+        # It reads the necessary secrets for authentication from GitHub repository secrets.
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        # This step sets up the Google Cloud SDK to interact with Google Cloud services.
+        # The SDK is used to deploy the Cloud Function and other Google Cloud operations.
+
+      - name: Create GCP Bucket
+        run: |
+          # Creates a GCP bucket with a specified name and location.
+          BUCKET_NAME=my-gcp-bucket-name  # Customize with the bucket's name.
+          LOCATION=US  # Adjust location as needed.
+          gsutil mb -l $LOCATION gs://$BUCKET_NAME/  # Creates the bucket.
+
+  delete-bucket:  # Job for deleting a GCP bucket.
+    if: github.event.inputs.action == 'delete'  # Only runs if 'delete' is selected.
+    runs-on: ubuntu-latest  # The job runs on the latest Ubuntu runner.
+
+    steps:
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          create_credentials_file: true
+          token_format: "access_token"
+          workload_identity_provider: '${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ secrets.SERVICE_ACCOUNT }}'
+        # This step authenticates with Google Cloud using the Google GitHub Actions Auth library.
+        # It uses a Workload Identity Provider and Service Account to create the required credentials.
+        # It reads the necessary secrets for authentication from GitHub repository secrets.
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        # This step sets up the Google Cloud SDK to interact with Google Cloud services.
+        # The SDK is used to deploy the Cloud Function and other Google Cloud operations.
+
+      - name: Empty GCP Bucket
+        run: |
+          # Empties all content from the specified GCP bucket.
+          BUCKET_NAME=my-gcp-bucket-name  # Customize with the bucket's name.
+          gsutil rm -r gs://$BUCKET_NAME/  # Deletes all objects in the bucket.
+
+      - name: Delete GCP Bucket
+        run: |
+          # Deletes the specified GCP bucket.
+          BUCKET_NAME=my-gcp-bucket-name  # Customize with the bucket's name.
+          gsutil rb gs://$BUCKET_NAME/  # Removes the bucket.
