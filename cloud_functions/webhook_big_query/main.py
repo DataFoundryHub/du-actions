@@ -2,6 +2,7 @@ import functions_framework
 from google.cloud import bigquery
 from common_utils.utils import create_logger
 from flask import request, jsonify
+import traceback
 
 
 @functions_framework.http
@@ -56,24 +57,28 @@ def trigger_bq(request):
 
     # Create a BigQuery client for interacting with the BigQuery service
     client = bigquery.Client(project=project_id)
+    try:
+        # Reference the desired BigQuery table
+        table_ref = client.dataset(dataset_name).table(table_name)
 
-    # Reference the desired BigQuery table
-    table_ref = client.dataset(dataset_name).table(table_name)
+        # Prepare the data for insertion into BigQuery
+        # If the JSON data is a dictionary, wrap it in a list; otherwise, use it as-is
+        data_to_insert = [request_json] if isinstance(request_json, dict) else request_json
 
-    # Prepare the data for insertion into BigQuery
-    # If the JSON data is a dictionary, wrap it in a list; otherwise, use it as-is
-    data_to_insert = [request_json] if isinstance(request_json, dict) else request_json
+        # Attempt to insert the data into the specified BigQuery table
+        errors = client.insert_rows_json(table_ref, data_to_insert)  # Insert data as JSON
 
-    # Attempt to insert the data into the specified BigQuery table
-    errors = client.insert_rows_json(table_ref, data_to_insert)  # Insert data as JSON
+        # If there are any errors during insertion, return an error response with details
+        if errors:
+            logger.error(f"Error inserting data into BigQuery: {errors}")  # Log the errors
+            return jsonify({"status": "error", "message": f"Failed to insert data into BigQuery. Reason - {errors}"}), 500
 
-    # If there are any errors during insertion, return an error response with details
-    if errors:
-        logger.error(f"Error inserting data into BigQuery: {errors}")  # Log the errors
-        return jsonify({"status": "error", "message": f"Failed to insert data into BigQuery. Reason - {errors}"}), 500
+        # Log a success message if data insertion is successful
+        logger.info(f"Data inserted into {project_id}.{dataset_name}.{table_name} successfully.")
 
-    # Log a success message if data insertion is successful
-    logger.info(f"Data inserted into {project_id}.{dataset_name}.{table_name} successfully.")
-
-    # Return a success response if the data is inserted without errors
-    return jsonify({"status": "success", "message": "Data inserted successfully."}), 200  # 200 status for success
+        # Return a success response if the data is inserted without errors
+        return jsonify({"status": "success", "message": "Data inserted successfully."}), 200  # 200 status for success
+    except Exception as error:
+        # Log error message and traceback, and return an error response
+        logger.error(f"Error Traceback: {traceback.format_exc()}")
+        return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500

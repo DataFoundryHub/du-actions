@@ -53,14 +53,6 @@ def trigger_bq(request):
     # Determine the file extension to identify the file type (CSV or Parquet)
     file_extension = os.path.splitext(file_name)[1].lower()  # Get file extension in lowercase
 
-    # Initialize clients for BigQuery and Cloud Storage
-    client = bigquery.Client(project=project_id)
-    gcs_client = storage.Client()
-
-    # Get the bucket and file (blob) from Cloud Storage
-    bucket = gcs_client.get_bucket(bucket_name)  # Get the Cloud Storage bucket
-    blob = bucket.blob(file_name)  # Get the blob representing the file in the bucket
-
     try:
         # Read the file based on its extension
         if file_extension == ".csv":
