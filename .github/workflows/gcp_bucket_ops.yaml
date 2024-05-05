@@ -17,10 +17,16 @@ on:
           - delete  # Option to delete a bucket.
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: dev  # This specifies the environment context for the job, such as the 'dev' environment.
+    permissions:
+      contents: read   # Grants read access to the repository contents.
+      id-token: write  # Grants permission to generate identity tokens for Google Cloud authentication.
+
   create-bucket:  # Job for creating a GCP bucket.
     if: github.event.inputs.action == 'create'  # Only runs if 'create' is selected.
     runs-on: ubuntu-latest  # The job runs on the latest Ubuntu runner.
-
     steps:
       - id: auth
         name: Authenticate to Google Cloud
@@ -49,7 +55,6 @@ jobs:
   delete-bucket:  # Job for deleting a GCP bucket.
     if: github.event.inputs.action == 'delete'  # Only runs if 'delete' is selected.
     runs-on: ubuntu-latest  # The job runs on the latest Ubuntu runner.
-
     steps:
       - id: auth
         name: Authenticate to Google Cloud
