@@ -45,9 +45,8 @@ jobs:
 
       - name: Create GCP Bucket
         run: |
-          cat $GOOGLE_GHA_CREDS_PATH
           # Creates a GCP bucket with a specified name and location.
-          BUCKET_NAME=my-gcp-bucket-name  # Customize with the bucket's name.
+          BUCKET_NAME=my-gcp-bucket-name-ag  # Customize with the bucket's name.
           LOCATION=US  # Adjust location as needed.
           gsutil mb -l $LOCATION gs://$BUCKET_NAME/  # Creates the bucket.
 
@@ -79,8 +78,7 @@ jobs:
       - name: Empty GCP Bucket
         run: |
           # Empties all content from the specified GCP bucket.
-          cat $GOOGLE_GHA_CREDS_PATH
-          BUCKET_NAME=my-gcp-bucket-name  # Customize with the bucket's name.
+          BUCKET_NAME=my-gcp-bucket-name-ag  # Customize with the bucket's name.
           gsutil rm -r gs://$BUCKET_NAME/  # Deletes all objects in the bucket.
 
       - name: Delete GCP Bucket
