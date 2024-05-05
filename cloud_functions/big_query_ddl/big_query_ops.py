@@ -82,7 +82,7 @@ class BigQueryDDL:
         except Exception as error:
             # Log error message and traceback, and return an error response
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500
+            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {str(error)}"}), 500
 
     def delete_table(self):
         """
@@ -112,7 +112,7 @@ class BigQueryDDL:
         except Exception as error:
             # Log error message and traceback, and return an error response
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500
+            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {str(error)}"}), 500
 
     def update_table_schema(self, new_schema):
         """
@@ -157,4 +157,4 @@ class BigQueryDDL:
         except Exception as error:
             # Log error message and traceback, and return an error response
             self.logger.error(f"Error Traceback: {traceback.format_exc()}")
-            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {error}"}), 500
+            return jsonify({"status": "error", "message": f"An internal error occurred. Reason - {str(error)}"}), 500
