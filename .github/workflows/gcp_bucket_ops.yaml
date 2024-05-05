@@ -78,6 +78,7 @@ jobs:
       - name: Empty GCP Bucket
         run: |
           # Empties all content from the specified GCP bucket.
+          cat $GOOGLE_GHA_CREDS_PATH
           BUCKET_NAME=my-gcp-bucket-name  # Customize with the bucket's name.
           gsutil rm -r gs://$BUCKET_NAME/  # Deletes all objects in the bucket.
 
