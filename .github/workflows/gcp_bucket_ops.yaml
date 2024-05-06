@@ -81,8 +81,8 @@ jobs:
           BUCKET_NAME=my-gcp-bucket-name-ag  # Customize with the bucket's name.
           gsutil rm -r gs://$BUCKET_NAME/  # Deletes all objects in the bucket.
 
-      - name: Delete GCP Bucket
-        run: |
+      #- name: Delete GCP Bucket
+      #  run: |
           # Deletes the specified GCP bucket.
-          BUCKET_NAME=my-gcp-bucket-name-ag  # Customize with the bucket's name.
-          gsutil rb gs://$BUCKET_NAME/  # Removes the bucket.
+      #    BUCKET_NAME=my-gcp-bucket-name-ag  # Customize with the bucket's name.
+      #    gsutil rb gs://$BUCKET_NAME/  # Removes the bucket.
